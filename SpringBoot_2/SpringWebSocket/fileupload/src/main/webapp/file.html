@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <title>Chat</title>
+        </head>
+    <body>
+        <h2>File Upload</h2>
+            Select file
+        <input type="file" id="filename" />
+        <br><br><br>
+        <input type="button" value="Connect" onclick="WebSocketTest()" />
+        <br><br><br>
+        <input type="button" value="Upload" onclick="sendFile()" />
+
+    <script>
+    "use strict"
+    var ws;
+    function WebSocketTest()
+    {
+      if ("WebSocket" in window)
+      {
+         console.log("WebSocket is supported by your Browser!");
+         // Let us open a web socket
+         ws = new WebSocket("ws://localhost:8080/myHandler");
+         
+        
+         ws.binaryData = "blob";
+         //ws.send(message); // Blob object
+         
+         ws.onopen = function()
+         {
+            // Web Socket is connected, send data using send() 
+            ws.send(JSON.stringify({userName:'aaaa',password:'pppppp'}));
+            console.log("Message is sent...");
+         };
+         ws.onmessage = function (evt)
+         {
+            var received_msg = evt.data;
+            console.log("Message is received...");
+         };
+         ws.onclose = function()
+         {
+            // websocket is closed.
+            console.log("Connection is closed...");
+         };
+      }
+      else
+      {
+         // The browser doesn't support WebSocket
+         console.log("WebSocket NOT supported by your Browser!");
+      }
+    }
+
+function sendFile() {
+    var file = document.getElementById('filename').files[0];
+    ws.binaryType = "arraybuffer";
+    //ws.send('filename:'+file.name);
+    var reader = new FileReader();
+    var rawData = new ArrayBuffer();           
+    console.log(file.name);
+    reader.loadend = function() {
+    }
+    reader.onload = function(e) {
+        rawData = e.target.result;
+        ws.send(rawData);
+        console.log("the File has been transferred.")
+        //ws.send('end');
+    }
+    reader.readAsArrayBuffer(file);
+}   
+</script>
+</body>
+</html>
